@@ -34,7 +34,20 @@ class PricesController < ProtectedController
 
   # PATCH/PUT /prices/1
   def update
-    if @price.update(price_params)
+    params = price_params
+    puts 'The params are here: '
+    if !params['item_name'].nil?
+      params['item_id'] = get_item_id(params['item_name'], params['item_unit'])
+      params.delete('item_name')
+      params.delete('item_unit')
+    end
+
+    if !params['store_name'].nil?
+      params['store_id'] = get_store_id(params['store_name'])
+      params.delete('store_name')
+    end
+
+    if @price.update(params)
       render json: @price
     else
       render json: @price.errors, status: :unprocessable_entity
@@ -68,7 +81,7 @@ class PricesController < ProtectedController
       if @item.save
         @item.id
       else
-        render json: @item.errors, status: :unprocessable_entity
+        raise Exception.new "Unable to save"
       end
     else
       @item.id
