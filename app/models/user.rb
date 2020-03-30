@@ -5,4 +5,5 @@ class User < ApplicationRecord
   has_many :examples
   has_many :items, dependent: :destroy
   has_many :stores, dependent: :destroy
+  has_many :prices, dependent: :destroy
 end

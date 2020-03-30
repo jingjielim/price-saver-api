@@ -1,4 +1,4 @@
-<% project_name = 'grocer-track-api' %>
+<% project_name = 'price-saver-api' %>
 
 default: &default
   adapter: postgresql
