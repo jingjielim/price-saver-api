@@ -23,7 +23,8 @@ class PricesController < ProtectedController
     params.delete('store_name')
     params.delete('item_name')
     params.delete('item_unit')
-
+    puts 'got here'
+    puts params
     @price = current_user.prices.build(params)
     if @price.save
       render json: @price, status: :created, location: @price
@@ -73,6 +74,8 @@ class PricesController < ProtectedController
 
   def get_item_id(name, unit)
     @item = current_user.items.find_by name: name
+    puts 'item is: '
+    puts @item
     if @item.nil?
       @item = current_user.items.build(
         name: name,
