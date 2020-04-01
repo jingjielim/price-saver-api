@@ -17,8 +17,10 @@ class ItemsController < ProtectedController
 
   # POST /items
   def create
-    @item = current_user.items.build(item_params)
-
+    params = item_params
+    params['unit'] = params['unit'].downcase
+    params['name'] = params['name'].downcase.titlecase
+    @item = current_user.items.build(params)
     if @item.save
       render json: @item, status: :created, location: @item
     else
@@ -28,7 +30,10 @@ class ItemsController < ProtectedController
 
   # PATCH/PUT /items/1
   def update
-    if @item.update(item_params)
+    params = item_params
+    params['unit'] = params['unit'].downcase
+    params['name'] = params['name'].downcase.titlecase
+    if @item.update(params)
       render json: @item
     else
       render json: @item.errors, status: :unprocessable_entity

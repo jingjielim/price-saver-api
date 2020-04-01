@@ -18,7 +18,7 @@ class PricesController < ProtectedController
   # POST /prices
   def create
     params = price_params
-    params['item_id'] = get_item_id(params['item_name'], params['item_unit'])
+    params['item_id'] = get_item_id(params['item_name'].downcase.titlecase, params['item_unit'].downcase)
     params['store_id'] = get_store_id(params['store_name'])
     params.delete('store_name')
     params.delete('item_name')
