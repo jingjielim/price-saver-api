@@ -5,9 +5,22 @@ class PricesController < ProtectedController
 
   # GET /prices
   def index
-    @prices = current_user.prices.all
+    result = []
+    stores = Store.order(:created_at).all
+    current_user.prices.group_by(&:item_id).each do |item_id, prices|
+      record = {}
+      record[:name] = Item.find(item_id).name
+      record[:lowest] = { store: '', value: '' }
+      record[:stores] = {}
+      stores.each { |store| record[:stores][store.name] = { store_id: store.id, price_id: '', value: '-' } }
+      prices.each do |price|
+        store = Store.find(price.store_id)
+        record[:stores][store.name] = { store_id: price.store_id, price_id: price.id, value: price.value }
+      end
+      result.append(record)
+    end
 
-    render json: @prices
+    render json: result
   end
 
   # GET /prices/1
@@ -18,16 +31,22 @@ class PricesController < ProtectedController
   # POST /prices
   def create
     params = price_params
-    params['item_id'] = get_item_id(params['item_name'].downcase.titlecase, params['item_unit'].downcase)
+    params['item_id'] =  get_item_id(params['item_name'].downcase.titlecase)
     params['store_id'] = get_store_id(params['store_name'])
     params.delete('store_name')
     params.delete('item_name')
     params.delete('item_unit')
-    puts 'got here'
-    puts params
+
     @price = current_user.prices.build(params)
     if @price.save
       render json: @price, status: :created, location: @price
+    elsif @price.errors[:store_id][0] == 'Combination of store and item exists'
+      @price = current_user.prices.find_by store_id: params['store_id'], item_id: params['item_id']
+      if @price.update(params)
+        render json: @price
+      else
+        render json: @price.errors, status: :unprocessable_entity
+      end
     else
       render json: @price.errors, status: :unprocessable_entity
     end
@@ -36,7 +55,6 @@ class PricesController < ProtectedController
   # PATCH/PUT /prices/1
   def update
     params = price_params
-    puts 'The params are here: '
     if !params['item_name'].nil?
       params['item_id'] = get_item_id(params['item_name'], params['item_unit'])
       params.delete('item_name')
@@ -72,20 +90,11 @@ class PricesController < ProtectedController
     params.require(:price).permit(:value, :item_name, :item_unit, :store_name)
   end
 
-  def get_item_id(name, unit)
+  def get_item_id(name)
     @item = current_user.items.find_by name: name
-    puts 'item is: '
-    puts @item
+
     if @item.nil?
-      @item = current_user.items.build(
-        name: name,
-        unit: unit
-      )
-      if @item.save
-        @item.id
-      else
-        raise Exception.new "Unable to save"
-      end
+      'No name found'
     else
       @item.id
     end
@@ -93,6 +102,7 @@ class PricesController < ProtectedController
 
   def get_store_id(name)
     @store = current_user.stores.find_by name: name
+    puts @store.nil?
     if @store.nil?
       @store = current_user.stores.build(
         name: name

@@ -5,7 +5,7 @@ class StoresController < ProtectedController
 
   # GET /stores
   def index
-    @stores = current_user.stores.all
+    @stores = current_user.stores.order(:created_at).all
 
     render json: @stores
   end

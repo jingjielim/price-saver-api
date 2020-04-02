@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class PriceSerializer < ActiveModel::Serializer
-  attributes :id, :value, :store_id, :store_name, :updated_at
+  attributes :id, :value, :store_id, :store_name, :item_name, :editable
   has_one :user
   has_one :item
   has_one :store
@@ -10,7 +10,11 @@ class PriceSerializer < ActiveModel::Serializer
     object.store.name
   end
 
-  def store_id
-    object.store.id
+  def item_name
+    object.item.name
+  end
+
+  def editable
+    scope == object.user
   end
 end
