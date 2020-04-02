@@ -7,20 +7,24 @@ class PricesController < ProtectedController
   def index
     result = []
     stores = Store.order(:created_at).all
-    current_user.prices.group_by(&:item_id).each do |item_id, prices|
-      record = {}
-      record[:name] = Item.find(item_id).name
-      record[:lowest] = { store: '', value: '' }
-      record[:stores] = {}
-      stores.each { |store| record[:stores][store.name] = { store_id: store.id, price_id: '', value: '-' } }
-      prices.each do |price|
-        store = Store.find(price.store_id)
-        record[:stores][store.name] = { store_id: price.store_id, price_id: price.id, value: price.value }
+    @prices = current_user.prices.all
+    if @prices.length.positive?
+      current_user.prices.group_by(&:item_id).each do |item_id, prices|
+        record = {}
+        record[:name] = Item.find(item_id).name
+        record[:lowest] = { store: '', value: '' }
+        record[:stores] = {}
+        stores.each { |store| record[:stores][store.name] = { store_id: store.id, price_id: '', value: '-' } }
+        prices.each do |price|
+          store = Store.find(price.store_id)
+          record[:stores][store.name] = { store_id: price.store_id, price_id: price.id, value: price.value }
+        end
+        result.append(record)
       end
-      result.append(record)
+      render json: result
+    else
+      render []
     end
-
-    render json: result
   end
 
   # GET /prices/1
@@ -94,7 +98,7 @@ class PricesController < ProtectedController
     @item = current_user.items.find_by name: name
 
     if @item.nil?
-      'No name found'
+      'Not found'
     else
       @item.id
     end
@@ -102,16 +106,9 @@ class PricesController < ProtectedController
 
   def get_store_id(name)
     @store = current_user.stores.find_by name: name
-    puts @store.nil?
+
     if @store.nil?
-      @store = current_user.stores.build(
-        name: name
-      )
-      if @store.save
-        @store.id
-      else
-        render json: @store.errors, status: :unprocessable_entity
-      end
+      'Not found'
     else
       @store.id
     end

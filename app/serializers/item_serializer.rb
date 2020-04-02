@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class ItemSerializer < ActiveModel::Serializer
-  attributes :id, :name, :unit, :editable, :lowest
+  attributes :id, :name, :unit, :editable, :lowest, :last_updated
   has_many :prices
 
   def editable
@@ -22,5 +22,14 @@ class ItemSerializer < ActiveModel::Serializer
     else
       { price: nil, store: nil }
     end
+  end
+
+  def last_updated
+    last_updated = 0
+    object.prices.each do |price|
+      last_updated = [last_updated, price.updated_at].max
+      puts last_updated
+    end
+    last_updated
   end
 end
