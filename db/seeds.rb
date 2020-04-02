@@ -28,7 +28,7 @@ stores.each do |store|
   new_store.save
 end
 
-const num_stores = Store.all.length
+num_stores = Store.all.length
 puts "#{num_stores} stores created"
 
 items = [
@@ -71,7 +71,7 @@ items.each do |item|
   new_item.save
 end
 
-const num_items = Item.all.length
+num_items = Item.all.length
 puts "#{num_items} items created"
 
 1.upto(200) {
@@ -84,5 +84,5 @@ puts "#{num_items} items created"
   new_price.save
 }
 
-const num_prices = Price.all.length
+num_prices = Price.all.length
 puts "#{num_prices} prices created"
