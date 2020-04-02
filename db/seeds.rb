@@ -28,6 +28,8 @@ stores.each do |store|
   new_store.save
 end
 
+puts 'Stores created'
+
 items = [
   { name: 'eggs', unit: 'dozen' },
   { name: 'chicken wings', unit: 'lbs' },
@@ -43,9 +45,13 @@ items = [
 ]
 
 items.each do |item|
-  new_item = user1.items.build(item)
+  name = item[:name].downcase.titlecase
+  unit = item[:unit].downcase
+  new_item = user1.items.build(name: name, unit: unit)
   new_item.save
 end
+
+puts 'Items created'
 
 1.upto(100) {
   Random.new_seed
@@ -56,3 +62,5 @@ end
   new_price = user1.prices.build(value: rand_value, item_id: rand_item, store_id: rand_store)
   new_price.save
 }
+
+puts 'Prices created'
