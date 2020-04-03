@@ -6,7 +6,7 @@ class PricesController < ProtectedController
   # GET /prices
   def index
     result = []
-    stores = Store.order(:created_at).all
+    stores = current_user.stores.order(:created_at).all
     @prices = current_user.prices.all
     if @prices.length.positive?
       current_user.prices.group_by(&:item_id).each do |item_id, prices|
@@ -21,9 +21,9 @@ class PricesController < ProtectedController
         end
         result.append(record)
       end
-      render json: result
+      render json: { "prices": result }
     else
-      render []
+      render json: { "prices": [] }
     end
   end
 
