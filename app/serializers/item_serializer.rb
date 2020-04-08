@@ -28,7 +28,6 @@ class ItemSerializer < ActiveModel::Serializer
     last_updated = 0
     object.prices.each do |price|
       last_updated = [last_updated, price.updated_at].max
-      puts last_updated
     end
     last_updated
   end
